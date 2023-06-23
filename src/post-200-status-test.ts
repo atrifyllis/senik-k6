@@ -1,11 +1,11 @@
 import {check, sleep} from 'k6';
 import {Options} from 'k6/options';
-import http from 'k6/http';
+import http, {RequestBody} from 'k6/http';
 import {authenticateUsingOkta} from "./oauth";
 
 export let options: Options = {
-    vus: 10,
-    duration: '30s'
+    vus: 100,
+    duration: '60s'
 };
 
 export const OKTA_DOMAIN = 'dev-12550077.okta.com'
@@ -38,7 +38,29 @@ export default (data: any) => {
             'Authorization': `Bearer ${data.access_token}`, // or `Bearer ${clientAuthResp.access_token}`
         },
     };
-    const res = http.get('http://localhost:8080/reference-data', params);
+    let body: RequestBody = `
+    {
+      "individual": {
+        "insuranceType": "TSMEDE",
+        "efkaClassId": "d55ec320-c0fe-4222-808e-3b52d9087061",
+        "eteaepClassId": "14d0b02a-2898-4c7b-8519-3bf163f8f931",
+        "grossDailyIncomes": [
+          {
+            "days": 220,
+            "dailyIncome": {
+              "amount": 500.00,
+              "currencyCode": "EUR"
+            }
+          }
+        ],
+        "annualExpensesAmount": {
+          "amount": 0.00,
+          "currencyCode": "EUR"
+        }
+      }
+    }
+    `
+    const res = http.post('http://localhost:8080/calculate-income', body, params);
     check(res, {
         'status is 200': () => res.status === 200,
     });
