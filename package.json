@@ -22,6 +22,7 @@
     "webpack-glob-entries": "^1.0.1"
   },
   "scripts": {
-    "start": "webpack"
+    "start": "webpack",
+    "watch": "webpack --watch --mode development"
   }
 }
